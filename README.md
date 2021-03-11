@@ -1,6 +1,6 @@
 # React Justified Text Component
 
-React component that outputs an array with text alignment type justification.
+React component that outputs an array with text alignment type justification. ResizerObject API included.
 
 ### `npm install`
 

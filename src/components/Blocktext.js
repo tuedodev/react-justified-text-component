@@ -1,35 +1,45 @@
-import {useLayoutEffect, useReducer, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 
 const Blocktext = (props) => {
 
     let textItem = useRef(null);
+    
+    const textItemInitValues = {
+            text: props.text,
+            counter: 0,
+            currentFontSize: 1,
+            uom: 'rem', 
+            letterSpacing: 'normal',
+            finished: false
+    }
+    
     const CALCULATION_MAPPING = useRef([
             {divider: 200, multiplier: 1.5},
             {divider: 100, multiplier: 0.8},
             {divider: 50, multiplier: 0.25},
             {divider: 10, multiplier: 0.05},
             {divider: 1, multiplier: 0.03},
-            {divider: 0.5, multiplier: 0.01}
+            {divider: 0.5, multiplier: 0.01},
+            {divider: 0.1, multiplier: 0.005}
         ]);
-    const CONFIG = useRef(
-        { precisionFrom: 0.98, 
-          precisionTo: 1.02,
-          maximalCount: 50,
+    
+        const CONFIG = useRef(
+        { precisionFrom: 0.97, 
+          precisionTo: 1.03,
+          maximalCount: 35,
         });
 
     const [fontsLoaded, setFontsLoaded ] = useState(false);
 
+    const resizeObserverRef = useRef(new ResizeObserver(()=>{
+        // Fires only when there is currently no approximation/transition happening
+        if (state.counter === 0){
+            setState(textItemInitValues)
+        }
+    }));
+
     const [state, setState] = useReducer(
-        (state, newState) => ({...state, ...newState}),
-            {text: props.text,
-            id: props.id,
-            counter: 0,
-            currentFontSize: 1,
-            uom: 'rem', 
-            letterSpacing: 'normal',
-            finished: false
-            }
-        )
+        (state, newState) => ({...state, ...newState}), textItemInitValues)
     
     const getTextItemDimensions = () => {
         let [childWidth, parentWidth, diff, sign, precisionValue ] = [null];
@@ -47,6 +57,7 @@ const Blocktext = (props) => {
     
     // better use useLayoutEffect instead of useEffect as this hook function is changing and detecting the DOM
     useLayoutEffect(() => {
+
         const approximateFontSize = ({diff, sign}) => {
             let accumulator = 0;
             let summe = CALCULATION_MAPPING.current.map(step => {
@@ -61,22 +72,22 @@ const Blocktext = (props) => {
         
         if (fontsLoaded && !state.finished){
             let {diff, sign, precisionValue} = getTextItemDimensions();
-            if (diff){
+            if (diff !== null){
                 if (precisionValue < CONFIG.current.precisionFrom || precisionValue > CONFIG.current.precisionTo ){
                     let adjustFontSize = approximateFontSize({diff, sign});
                     setState({currentFontSize: state.currentFontSize + adjustFontSize});
                     setState({counter: state.counter + 1})
                     if (state.counter > CONFIG.current.maximalCount){
-                        setState({finished: true})
+                        setState({ finished: true })
                     }
                     
                 } else {
                     let letterSpacing = `${diff / state.text.length}px`;
-                    setState({finished: true, letterSpacing })
+                    setState({ finished: true, letterSpacing })
                 }
                 
             } 
-        }         
+        }
 
     }, [state, fontsLoaded])
 
@@ -85,6 +96,16 @@ const Blocktext = (props) => {
             setFontsLoaded(true);
         })
     },[])
+
+    useEffect(() => {
+        const parent = textItem.current?.parentElement;
+        let resizeObserverInstance = resizeObserverRef.current;
+        if (resizeObserverInstance)
+            resizeObserverInstance?.observe(parent);
+        return () => {
+            resizeObserverInstance?.unobserve(parent);
+        }
+    })
 
     return (
         <p className="text-item" style={{ fontSize: state.currentFontSize + state.uom, letterSpacing: state.letterSpacing }} ref={textItem}>

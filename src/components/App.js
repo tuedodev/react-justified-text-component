@@ -8,8 +8,8 @@ function App() {
   return (
       <div className="textbox-wrapper">
         <div className="textbox" id="textbox">
-        { messages.map((msg, index) => {
-            return <Blocktext text={msg} key={ uuidv4() }  />
+        { messages.map(msg => {
+            return <Blocktext text={msg} key={ uuidv4() } />
         })}
         </div>
       </div>
