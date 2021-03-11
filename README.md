@@ -10,6 +10,6 @@ First install all dependencies for the new React app after cloning the repositor
 
 Start the app on localhost.
 
-![Screenshot](./screenshot.webp)
+![Screenshot](./screenshot.jpg)
 
 [CodePen Demo](https://codepen.io/tuedodev/pen/KKNrNWr)
