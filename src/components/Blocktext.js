@@ -23,7 +23,7 @@ const Blocktext = (props) => {
             {divider: 0.1, multiplier: 0.005}
         ]);
     
-        const CONFIG = useRef(
+    const CONFIG = useRef(
         { precisionFrom: 0.97, 
           precisionTo: 1.03,
           maximalCount: 35,
