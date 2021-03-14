@@ -92,12 +92,15 @@ const Blocktext = (props) => {
     }, [state, fontsLoaded])
 
     useLayoutEffect(() => {
+
         document.fonts.ready.then(() => {
             setFontsLoaded(true);
         })
+
     },[])
 
     useEffect(() => {
+
         const parent = textItem.current?.parentElement;
         let resizeObserverInstance = resizeObserverRef.current;
         if (resizeObserverInstance)
@@ -105,7 +108,8 @@ const Blocktext = (props) => {
         return () => {
             resizeObserverInstance?.unobserve(parent);
         }
-    })
+
+    }, [])
 
     return (
         <p className="text-item" style={{ fontSize: state.currentFontSize + state.uom, letterSpacing: state.letterSpacing }} ref={textItem}>
